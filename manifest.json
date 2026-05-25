@@ -1,0 +1,16 @@
+{
+  "name": "Zona de Risco",
+  "short_name": "ZonaRisco",
+  "description": "Segurança urbana em tempo real — Salvador e Lauro de Freitas",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080a0c",
+  "theme_color": "#ff1a1a",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["navigation", "utilities"],
+  "lang": "pt-BR"
+}

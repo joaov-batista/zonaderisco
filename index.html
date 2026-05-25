@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Zona de Risco</title>
+
+  <!-- FONTES -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- LEAFLET -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- SPLASH -->
+  <div id="splash">
+
+    <div class="splash-logo">
+      🚨 ZONA DE RISCO
+    </div>
+
+    <div class="splash-bar">
+      <div class="splash-fill"></div>
+    </div>
+
+    <div class="splash-sub">
+      SUA ROTA. SUA SEGURANÇA.
+    </div>
+
+  </div>
+
+  <!-- MAPA -->
+  <div id="map"></div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+
+    <div class="topbar-inner">
+
+      <button class="tb-menu">
+        ☰
+      </button>
+
+      <div class="searchbar">
+
+        🔍
+
+        <input
+          type="text"
+          placeholder="Para onde você vai?"
+        />
+
+      </div>
+
+      <button class="tb-report-mini">
+        🚨
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- TOAST -->
+  <div class="danger-toast hidden" id="danger-toast">
+
+    <div class="dt-left">
+
+      <div class="dt-icon">
+        ⚠️
+      </div>
+
+      <div>
+
+        <div class="dt-title">
+          Zona de Alto Risco
+        </div>
+
+        <div class="dt-sub">
+          Você está entrando em uma área perigosa
+        </div>
+
+      </div>
+
+    </div>
+
+    <button class="dt-route">
+      ROTA SEGURA
+    </button>
+
+  </div>
+
+  <!-- FAB REPORT -->
+  <button class="fab-report" id="fab-report">
+    +
+  </button>
+
+  <!-- FAB LOCALIZAÇÃO -->
+  <button class="fab-location">
+    📍
+  </button>
+
+  <!-- BOTTOM SHEET -->
+  <div class="bottom-sheet expanded">
+
+    <div class="bs-handle"></div>
+
+    <div class="bs-tabs">
+
+      <button class="bst active">
+        ALERTAS
+      </button>
+
+      <button class="bst">
+        HEATMAP
+      </button>
+
+      <button class="bst">
+        PRÓXIMOS
+      </button>
+
+    </div>
+
+    <div class="bs-tab-content active">
+
+      <div class="feed-header">
+
+        <div class="feed-title">
+
+          <div class="live-dot"></div>
+
+          OCORRÊNCIAS AO VIVO
+
+        </div>
+
+        <div class="feed-count" id="feed-count">
+          0 alertas
+        </div>
+
+      </div>
+
+      <div class="incidents-feed" id="incidents-feed"></div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay hidden" id="modal-overlay">
+
+    <div class="modal-sheet">
+
+      <div class="modal-drag"></div>
+
+      <div class="modal-header">
+
+        <h2>Nova Ocorrência</h2>
+
+        <button class="modal-x" id="modal-x">
+          ✕
+        </button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <div class="modal-loc">
+
+          📍
+
+          <span>
+            Sua localização atual
+          </span>
+
+        </div>
+
+        <!-- TIPOS -->
+        <div class="fg">
+
+          <label>
+            TIPO DE OCORRÊNCIA
+          </label>
+
+          <div class="crime-grid">
+
+            <button class="cg-btn" data-type="Assalto">
+              <div class="cg-emoji">🔫</div>
+              Assalto
+            </button>
+
+            <button class="cg-btn" data-type="Arrastão">
+              <div class="cg-emoji">🚨</div>
+              Arrastão
+            </button>
+
+            <button class="cg-btn" data-type="Tiroteio">
+              <div class="cg-emoji">💥</div>
+              Tiroteio
+            </button>
+
+            <button class="cg-btn" data-type="Roubo de carro">
+              <div class="cg-emoji">🚗</div>
+              Carro
+            </button>
+
+            <button class="cg-btn" data-type="Suspeitos armados">
+              <div class="cg-emoji">⚠️</div>
+              Armados
+            </button>
+
+            <button class="cg-btn" data-type="Área perigosa">
+              <div class="cg-emoji">📍</div>
+              Área
+            </button>
+
+            <button class="cg-btn" data-type="Furto">
+              <div class="cg-emoji">📱</div>
+              Furto
+            </button>
+
+            <button class="cg-btn" data-type="Outro">
+              <div class="cg-emoji">❗</div>
+              Outro
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- DESCRIÇÃO -->
+        <div class="fg">
+
+          <label>
+            DESCRIÇÃO
+          </label>
+
+          <textarea
+            id="report-desc"
+            rows="5"
+            placeholder="Descreva o ocorrido..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer">
+
+        <button class="btn-send" id="send-report">
+          ENVIAR OCORRÊNCIA
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- LEAFLET -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- SCRIPT -->
+  <script type="module" src="script.js"></script>
+
+</body>
+</html>
