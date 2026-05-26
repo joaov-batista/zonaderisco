@@ -5,6 +5,9 @@ const ASSETS = [
   './style.css',
   './script.js',
   './manifest.json',
+  './favicon.svg',
+  './icons/icon-192.svg',
+  './icons/icon-512.svg',
   'https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700;900&display=swap',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'

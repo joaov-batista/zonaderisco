@@ -1,278 +1,355 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <meta name="theme-color" content="#ff1a1a"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Zona de Risco"/>
   <title>Zona de Risco</title>
-
-  <!-- FONTES -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- LEAFLET -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
 </head>
-
 <body>
 
-  <!-- SPLASH -->
-  <div id="splash">
-
-    <div class="splash-logo">
-      🚨 ZONA DE RISCO
+<!-- ══ SPLASH ══ -->
+<div id="splash">
+  <div class="splash-logo">
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+      <polygon points="22,4 40,38 4,38" stroke="#ff1a1a" stroke-width="2" fill="rgba(255,26,26,0.08)"/>
+      <line x1="22" y1="16" x2="22" y2="28" stroke="#ff1a1a" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="22" cy="32" r="2.2" fill="#ff1a1a"/>
+    </svg>
+    <div class="splash-title-wrap">
+      <span class="splash-title">ZONA DE RISCO</span>
+      <span class="splash-sub2">Salvador · Lauro de Freitas</span>
     </div>
-
-    <div class="splash-bar">
-      <div class="splash-fill"></div>
-    </div>
-
-    <div class="splash-sub">
-      SUA ROTA. SUA SEGURANÇA.
-    </div>
-
   </div>
+  <div class="splash-bar"><div class="splash-fill"></div></div>
+  <p class="splash-sub" id="splash-status">Localizando você...</p>
+</div>
 
-  <!-- MAPA -->
-  <div id="map"></div>
+<!-- ══ MAPA ══ -->
+<div id="map"></div>
 
-  <!-- TOPBAR -->
-  <div class="topbar">
-
-    <div class="topbar-inner">
-
-      <button class="tb-menu">
-        ☰
-      </button>
-
-      <div class="searchbar">
-
-        🔍
-
-        <input
-          type="text"
-          placeholder="Para onde você vai?"
-        />
-
-      </div>
-
-      <button class="tb-report-mini">
-        🚨
-      </button>
-
+<!-- ══ TOPBAR ══ -->
+<div class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <div class="app-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <polygon points="12,2 22,20 2,20" stroke="#ff1a1a" stroke-width="2" fill="rgba(255,26,26,0.1)"/>
+        <line x1="12" y1="9" x2="12" y2="15" stroke="#ff1a1a" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="17.5" r="1.3" fill="#ff1a1a"/>
+      </svg>
     </div>
-
-  </div>
-
-  <!-- TOAST -->
-  <div class="danger-toast hidden" id="danger-toast">
-
-    <div class="dt-left">
-
-      <div class="dt-icon">
-        ⚠️
-      </div>
-
-      <div>
-
-        <div class="dt-title">
-          Zona de Alto Risco
-        </div>
-
-        <div class="dt-sub">
-          Você está entrando em uma área perigosa
-        </div>
-
-      </div>
-
+    <div class="searchbar" id="searchbar">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+        <path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input type="text" id="search-input" placeholder="Para onde você vai?" autocomplete="off"/>
+      <button class="sb-clear hidden" id="sb-clear">×</button>
     </div>
-
-    <button class="dt-route">
-      ROTA SEGURA
+    <button class="tb-report-btn" id="btn-report-mini" title="Reportar ocorrência">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+        <polygon points="12,2 22,20 2,20" stroke="currentColor" stroke-width="2" fill="none"/>
+        <line x1="12" y1="9" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="18" r="1.2" fill="currentColor"/>
+      </svg>
     </button>
-
   </div>
+  <div class="autocomplete-list hidden" id="autocomplete-list"></div>
+</div>
 
-  <!-- FAB REPORT -->
-  <button class="fab-report" id="fab-report">
-    +
+<!-- ══ ROUTE PANEL ══ -->
+<div class="nav-hud hidden" id="nav-hud">
+  <div class="nav-hud-main">
+    <div class="nav-hud-title">Navegacao ativa</div>
+    <div class="nav-hud-metrics">
+      <div class="nav-metric">
+        <span class="nav-label">ETA</span>
+        <span class="nav-value" id="nav-eta">--</span>
+      </div>
+      <div class="nav-metric">
+        <span class="nav-label">Distancia</span>
+        <span class="nav-value" id="nav-distance">--</span>
+      </div>
+      <div class="nav-metric">
+        <span class="nav-label">Velocidade</span>
+        <span class="nav-value" id="nav-speed">--</span>
+      </div>
+      <div class="nav-metric">
+        <span class="nav-label">Risco</span>
+        <span class="nav-value" id="nav-risk">--</span>
+      </div>
+    </div>
+  </div>
+  <div class="nav-hud-alert" id="nav-alert">Sem alertas</div>
+</div>
+
+<div class="route-panel hidden" id="route-panel">
+  <div class="rp-header">
+    <button class="rp-close" id="rp-close" title="Fechar rota">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="rp-info">
+      <div class="rp-dest" id="rp-dest">Calculando...</div>
+      <div class="rp-meta" id="rp-meta">Aguardando</div>
+    </div>
+  </div>
+  <div class="rp-options">
+    <button class="rp-opt active" data-route="fast" id="rp-fast">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+        <path d="M13 2L4.09 12.96A1 1 0 005 14.5h6.5L11 22l9-11.04A1 1 0 0019 9.5h-6.5L13 2z" stroke="currentColor" stroke-width="2" fill="none"/>
+      </svg>
+      <span>Rápida</span>
+      <span class="rp-time" id="rp-fast-time">--</span>
+    </button>
+    <button class="rp-opt" data-route="safe" id="rp-safe">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L4 6v6c0 5.25 3.5 10.25 8 11 4.5-.75 8-5.75 8-11V6L12 2z" stroke="currentColor" stroke-width="2" fill="none"/>
+      </svg>
+      <span>Segura</span>
+      <span class="rp-time" id="rp-safe-time">--</span>
+    </button>
+  </div>
+  <div class="rp-risk-row">
+    <span class="rp-risk-label">Risco da rota</span>
+    <div class="rp-risk-bar-wrap"><div class="rp-risk-bar" id="rp-risk-bar"></div></div>
+    <span class="rp-risk-pct" id="rp-risk-pct">--%</span>
+  </div>
+  <button class="rp-start" id="rp-start">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <polygon points="5,3 19,12 5,21" fill="currentColor"/>
+    </svg>
+    INICIAR NAVEGAÇÃO
   </button>
+</div>
 
-  <!-- FAB LOCALIZAÇÃO -->
-  <button class="fab-location">
-    📍
+<div class="nav-controls hidden" id="nav-controls">
+  <button class="nav-btn" id="nav-recenter" title="Centralizar">
+    ⟳
   </button>
+  <button class="nav-btn nav-end" id="nav-end" title="Encerrar">
+    ■
+  </button>
+</div>
 
-  <!-- BOTTOM SHEET -->
-  <div class="bottom-sheet expanded">
-
-    <div class="bs-handle"></div>
-
-    <div class="bs-tabs">
-
-      <button class="bst active">
-        ALERTAS
-      </button>
-
-      <button class="bst">
-        HEATMAP
-      </button>
-
-      <button class="bst">
-        PRÓXIMOS
-      </button>
-
-    </div>
-
-    <div class="bs-tab-content active">
-
-      <div class="feed-header">
-
-        <div class="feed-title">
-
-          <div class="live-dot"></div>
-
-          OCORRÊNCIAS AO VIVO
-
-        </div>
-
-        <div class="feed-count" id="feed-count">
-          0 alertas
-        </div>
-
-      </div>
-
-      <div class="incidents-feed" id="incidents-feed"></div>
-
-    </div>
-
+<!-- ══ BOTTOM SHEET ══ -->
+<div class="bottom-sheet peek" id="bottom-sheet">
+  <div class="bs-handle-wrap" id="bs-handle">
+    <div class="bs-handle-bar"></div>
   </div>
 
-  <!-- MODAL -->
-  <div class="modal-overlay hidden" id="modal-overlay">
-
-    <div class="modal-sheet">
-
-      <div class="modal-drag"></div>
-
-      <div class="modal-header">
-
-        <h2>Nova Ocorrência</h2>
-
-        <button class="modal-x" id="modal-x">
-          ✕
-        </button>
-
-      </div>
-
-      <div class="modal-body">
-
-        <div class="modal-loc">
-
-          📍
-
-          <span>
-            Sua localização atual
-          </span>
-
-        </div>
-
-        <!-- TIPOS -->
-        <div class="fg">
-
-          <label>
-            TIPO DE OCORRÊNCIA
-          </label>
-
-          <div class="crime-grid">
-
-            <button class="cg-btn" data-type="Assalto">
-              <div class="cg-emoji">🔫</div>
-              Assalto
-            </button>
-
-            <button class="cg-btn" data-type="Arrastão">
-              <div class="cg-emoji">🚨</div>
-              Arrastão
-            </button>
-
-            <button class="cg-btn" data-type="Tiroteio">
-              <div class="cg-emoji">💥</div>
-              Tiroteio
-            </button>
-
-            <button class="cg-btn" data-type="Roubo de carro">
-              <div class="cg-emoji">🚗</div>
-              Carro
-            </button>
-
-            <button class="cg-btn" data-type="Suspeitos armados">
-              <div class="cg-emoji">⚠️</div>
-              Armados
-            </button>
-
-            <button class="cg-btn" data-type="Área perigosa">
-              <div class="cg-emoji">📍</div>
-              Área
-            </button>
-
-            <button class="cg-btn" data-type="Furto">
-              <div class="cg-emoji">📱</div>
-              Furto
-            </button>
-
-            <button class="cg-btn" data-type="Outro">
-              <div class="cg-emoji">❗</div>
-              Outro
-            </button>
-
-          </div>
-
-        </div>
-
-        <!-- DESCRIÇÃO -->
-        <div class="fg">
-
-          <label>
-            DESCRIÇÃO
-          </label>
-
-          <textarea
-            id="report-desc"
-            rows="5"
-            placeholder="Descreva o ocorrido..."
-          ></textarea>
-
-        </div>
-
-      </div>
-
-      <!-- FOOTER -->
-      <div class="modal-footer">
-
-        <button class="btn-send" id="send-report">
-          ENVIAR OCORRÊNCIA
-        </button>
-
-      </div>
-
+  <!-- Status bar -->
+  <div class="bs-status-bar">
+    <div class="bs-status-item">
+      <span class="bs-status-dot live"></span>
+      <span class="bs-status-label">AO VIVO</span>
     </div>
-
+    <div class="bs-status-count" id="feed-count">Carregando...</div>
+    <div class="bs-status-item">
+      <span class="bs-status-dot" id="conn-dot" style="background:var(--yellow)"></span>
+      <span class="bs-status-label" id="conn-label">Conectando</span>
+    </div>
   </div>
 
-  <!-- LEAFLET -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Pill tabs -->
+  <div class="bs-tabs">
+    <button class="bst active" data-tab="feed">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+        <path d="M13 2L4.09 12.96A1 1 0 005 14.5h6.5L11 22l9-11.04A1 1 0 0019 9.5h-6.5L13 2z" stroke="currentColor" stroke-width="1.8" fill="none"/>
+      </svg>
+      Alertas
+    </button>
+    <button class="bst" data-tab="heatmap">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      Mapa de Risco
+    </button>
+    <button class="bst" data-tab="nearby">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      Próximos
+    </button>
+  </div>
 
-  <!-- SCRIPT -->
-  <script type="module" src="script.js"></script>
+  <!-- FEED TAB -->
+  <div class="bs-tab-content active" id="tab-feed">
+    <div class="incidents-feed" id="incidents-feed">
+      <div class="feed-loading">
+        <div class="spinner"></div>
+        <span>Carregando ocorrências...</span>
+      </div>
+    </div>
+  </div>
 
+  <!-- HEATMAP TAB -->
+  <div class="bs-tab-content" id="tab-heatmap">
+    <div class="heatmap-content">
+      <div class="hm-legend">
+        <div class="hml-item"><span class="hml-dot safe"></span>Segura</div>
+        <div class="hml-item"><span class="hml-dot warn"></span>Atenção</div>
+        <div class="hml-item"><span class="hml-dot danger"></span>Alto Risco</div>
+        <div class="hml-item"><span class="hml-dot critical"></span>Crítico</div>
+      </div>
+      <div class="overall-risk-card" id="overall-card">
+        <div class="orc-label">Risco Geral — Salvador</div>
+        <div class="orc-bar-wrap"><div class="orc-bar" id="overall-risk-bar"></div></div>
+        <div class="orc-detail" id="rrc-detail">Calculando...</div>
+      </div>
+      <div class="risk-overview-grid" id="risk-grid"></div>
+    </div>
+  </div>
+
+  <!-- NEARBY TAB -->
+  <div class="bs-tab-content" id="tab-nearby">
+    <div class="nearby-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>Ocorrências a <strong>1,5 km</strong> de você</span>
+    </div>
+    <div class="nearby-list" id="nearby-list">
+      <div class="feed-loading"><div class="spinner"></div><span>Aguardando localização...</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FAB REPORT ══ -->
+<button class="fab-report" id="fab-report" title="Reportar ocorrência">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <polygon points="12,2 22,20 2,20" stroke="currentColor" stroke-width="2" fill="none"/>
+    <line x1="12" y1="8" x2="12" y2="15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="12" cy="18.5" r="1.5" fill="currentColor"/>
+  </svg>
+</button>
+
+<!-- ══ LOCATION FAB ══ -->
+<button class="fab-location" id="fab-location" title="Minha localização">
+  <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+    <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+
+<!-- ══ DANGER TOAST ══ -->
+<div class="danger-toast hidden" id="danger-toast">
+  <div class="dt-icon">⚠️</div>
+  <div class="dt-text">
+    <div class="dt-title">Zona de Alto Risco!</div>
+    <div class="dt-sub" id="dt-sub">Área com ocorrências recentes</div>
+  </div>
+  <button class="dt-route" id="dt-route">Rota Segura</button>
+  <button class="dt-close" id="dt-close">×</button>
+</div>
+
+<!-- ══ MODAL REPORT ══ -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <h2>Reportar Ocorrência</h2>
+      <button class="modal-x" id="modal-x">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-loc">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#ff1a1a" stroke-width="2"/>
+          <circle cx="12" cy="9" r="2.5" stroke="#ff1a1a" stroke-width="1.5"/>
+        </svg>
+        <span id="modal-loc-text">Detectando localização...</span>
+        <button class="loc-pick" id="loc-pick">Alterar</button>
+      </div>
+
+      <div class="fg">
+        <label>O QUE ACONTECEU?</label>
+        <div class="crime-grid">
+          <button class="cg-btn" data-type="assalto" data-emoji="🔪"><span class="cg-emoji">🔪</span><span>Assalto</span></button>
+          <button class="cg-btn" data-type="arrastaoe" data-emoji="🏃"><span class="cg-emoji">🏃</span><span>Arrastão</span></button>
+          <button class="cg-btn" data-type="tiroteio" data-emoji="🔫"><span class="cg-emoji">🔫</span><span>Tiroteio</span></button>
+          <button class="cg-btn" data-type="roubo-carro" data-emoji="🚗"><span class="cg-emoji">🚗</span><span>Roubo Carro</span></button>
+          <button class="cg-btn" data-type="suspeitos" data-emoji="👤"><span class="cg-emoji">👤</span><span>Suspeitos</span></button>
+          <button class="cg-btn" data-type="area" data-emoji="⛔"><span class="cg-emoji">⛔</span><span>Área Perigosa</span></button>
+          <button class="cg-btn" data-type="acidente" data-emoji="🚨"><span class="cg-emoji">🚨</span><span>Acidente</span></button>
+          <button class="cg-btn" data-type="outro" data-emoji="❓"><span class="cg-emoji">❓</span><span>Outro</span></button>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>GRAVIDADE</label>
+        <div class="severity-row">
+          <button class="sev-btn" data-level="1">😐<br><small>Suspeito</small></button>
+          <button class="sev-btn" data-level="2">⚠️<br><small>Atenção</small></button>
+          <button class="sev-btn active" data-level="3">🔴<br><small>Grave</small></button>
+          <button class="sev-btn" data-level="4">☠️<br><small>Crítico</small></button>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>DESCRIÇÃO (opcional)</label>
+        <textarea id="report-desc" placeholder="Descreva o que está vendo..." rows="2"></textarea>
+      </div>
+
+      <label class="anon-label">
+        <input type="checkbox" id="anon-check" checked/>
+        <span class="anon-box"></span>
+        Enviar anonimamente
+      </label>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-send" id="btn-send">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        ENVIAR ALERTA
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INCIDENT DETAIL SHEET ══ -->
+<div class="incident-detail hidden" id="incident-detail">
+  <div class="id-drag"></div>
+  <button class="id-close" id="id-close">×</button>
+  <div class="id-body" id="id-body"></div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast hidden" id="toast">
+  <span id="toast-msg"></span>
+</div>
+
+<!-- ══ INSTALL BANNER ══ -->
+<div class="install-banner hidden" id="install-banner">
+  <div class="ib-text">
+    <strong>Instale o Zona de Risco</strong>
+    <span>Acesso rápido pelo celular</span>
+  </div>
+  <button class="ib-install" id="ib-install">Instalar</button>
+  <button class="ib-dismiss" id="ib-dismiss">×</button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="script.js"></script>
 </body>
 </html>
